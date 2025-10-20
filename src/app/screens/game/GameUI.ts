@@ -3,18 +3,17 @@ import { SoundManager } from "./SoundManager";
 import { engine } from "../../getEngine";
 
 export class GameUI extends Container {
-  private coinsText: Text;
-  private levelText: Text;
-  private ammoText: Text;
-  private bulletLevelText: Text;
+  private coinsText!: Text;
+  private levelText!: Text;
+  private ammoText!: Text;
+  private bulletLevelText!: Text;
   private coins: number = 0;
   private level: number = 1;
   private ammo: number = 1000;
-  private maxAmmo: number = 1000;
   private bulletsPerShot: number = 1;
-  private increaseBulletsButton: Container;
-  private decreaseBulletsButton: Container;
-  private bulletCountText: Text;
+  private increaseBulletsButton!: Container;
+  private decreaseBulletsButton!: Container;
+  private bulletCountText!: Text;
   private player: any = null; // Reference to Player
   private cannon: any = null; // Reference to Cannon
   private eventEmitter: any = null; // Reference to EventEmitter
@@ -509,14 +508,14 @@ export class GameUI extends Container {
     topUIBar.fill({ color: 0x000000, alpha: 0.8 });
     this.addChild(topUIBar);
 
-    // Style cho text
-    const _textStyle = new TextStyle({
-      fontFamily: "Arial",
-      fontSize: 32,
-      fill: 0xffffff,
-      fontWeight: "bold",
-      stroke: { color: 0x000000, width: 2 },
-    });
+    // Example style kept here if needed for future reuse
+    // const textStyle = new TextStyle({
+    //   fontFamily: "Arial",
+    //   fontSize: 32,
+    //   fill: 0xffffff,
+    //   fontWeight: "bold",
+    //   stroke: { color: 0x000000, width: 2 },
+    // });
 
     // Text xu (dưới súng, bên trái)
     this.coinsText = new Text({

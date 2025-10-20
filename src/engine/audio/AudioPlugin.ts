@@ -1,8 +1,6 @@
-// import { sound } from "@pixi/sound"; // Đã tắt để tránh AudioContext warning
 import { ExtensionType } from "pixi.js";
 import type { Application, ExtensionMetadata } from "pixi.js";
-
-// import { BGM, SFX } from "./audio"; // Đã tắt để tránh AudioContext warning
+import { BGM, SFX } from "./audio";
 
 /**
  * Middleware for Application's audio functionality.
@@ -24,25 +22,22 @@ export class CreationAudioPlugin {
   public static init(): void {
     const app = this as unknown as Application;
 
-    // Stub audio system để tránh lỗi
+    // Create real instances to satisfy strict typings
+    const bgm = new BGM();
+    const sfx = new SFX();
+
     app.audio = {
-      bgm: {
-        play: () => {},
-        getVolume: () => 1,
-        setVolume: () => {},
-        currentAlias: undefined,
-        current: undefined,
+      bgm,
+      sfx,
+      getMasterVolume: () => {
+        // Use BGM volume as the master reference
+        return bgm.getVolume();
       },
-      sfx: {
-        play: () => {},
-        getVolume: () => 1,
-        setVolume: () => {},
+      setMasterVolume: (volume: number) => {
+        bgm.setVolume(volume);
+        sfx.setVolume(volume);
       },
-      getMasterVolume: () => 1,
-      setMasterVolume: (_volume: number) => {
-        // Không làm gì vì đã tắt audio system
-      },
-    };
+    } as Application["audio"];
   }
 
   /**

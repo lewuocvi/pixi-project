@@ -8,7 +8,8 @@ export class TargetManager extends Container {
   private spawnTimer: number = 0;
   private spawnInterval: number = 2000; // 2 giây spawn 1 đối tượng
   private fishSpawnChance: number = 0.3; // 30% cá, 70% quảng cáo (quảng cáo nhiều hơn)
-  private initialAdSpawned: boolean = false; // Để spawn quảng cáo đầu tiên
+  // Deprecated flag kept for potential future logic
+  // private initialAdSpawned: boolean = false;
 
   // Theo dõi loại quảng cáo đang hiển thị để tránh spawn trùng lặp
   private activeAdTypes: Set<string> = new Set();

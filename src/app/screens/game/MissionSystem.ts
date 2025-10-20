@@ -19,11 +19,11 @@ export interface Mission {
 export class MissionSystem extends Container {
   private missions: Mission[] = [];
   private currentMissionIndex: number = 0;
-  private missionUI: Container;
-  private missionText: Text;
-  private progressText: Text;
-  private rewardText: Text;
-  private progressBar: Graphics;
+  private missionUI!: Container;
+  private missionText!: Text;
+  private progressText!: Text;
+  private rewardText!: Text;
+  private progressBar!: Graphics;
 
   constructor() {
     super();
@@ -33,7 +33,7 @@ export class MissionSystem extends Container {
 
   private setupMissionUI(): void {
     const app = engine();
-    const _screenWidth = app.screen.width;
+    // const screenWidth = app.screen.width; // currently unused
     const screenHeight = app.screen.height;
 
     // Container cho UI nhiệm vụ

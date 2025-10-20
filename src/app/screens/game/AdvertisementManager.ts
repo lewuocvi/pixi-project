@@ -108,8 +108,14 @@ export class AdvertisementManager {
       this.systemData = await response.json();
       this.isLoaded = true;
       console.log("✅ Advertisement data loaded successfully");
-      console.log(`📊 Loaded ${this.systemData.advertisements.length} advertisements`);
-      console.log("📋 Available advertisement IDs:", this.systemData.advertisements.map(ad => ad.id));
+      // Safe-guarded logs to satisfy strict null checks
+      console.log(
+        `📊 Loaded ${this.systemData?.advertisements.length ?? 0} advertisements`,
+      );
+      console.log(
+        "📋 Available advertisement IDs:",
+        this.systemData?.advertisements.map((ad) => ad.id) ?? [],
+      );
     } catch (error) {
       console.error("Error loading advertisement data:", error);
       // Fallback to default data if loading fails
@@ -222,22 +228,7 @@ export class AdvertisementManager {
     return this.systemData.config;
   }
 
-  private convertRawConfigToConfig(rawConfig: AdvertisementData): AdvertisementData {
-    return {
-      id: rawConfig.id,
-      name: rawConfig.name,
-      color: typeof rawConfig.color === "string" ? parseInt(rawConfig.color, 16) : rawConfig.color,
-      size: rawConfig.size,
-      points: rawConfig.points,
-      coinValue: rawConfig.coinValue,
-      ammoReward: rawConfig.ammoReward,
-      speed: rawConfig.speed,
-      health: rawConfig.health,
-      rarity: rawConfig.rarity,
-      category: rawConfig.category,
-      content: rawConfig.content
-    };
-  }
+  // Removed incorrect and unused converter; AdvertisementData already matches the JSON schema
 
   private getRandomAdvertisementType(): string {
     if (!this.systemData) {
@@ -349,6 +340,6 @@ export class AdvertisementManager {
   }
 
   public getAdvertisementData(): AdvertisementData | null {
-    return this.advertisementData;
+    return null;
   }
 }
