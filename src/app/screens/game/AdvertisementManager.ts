@@ -1,4 +1,3 @@
-
 export interface AdvertisementContent {
   icon?: string;
   title: string;
@@ -128,30 +127,43 @@ export class AdvertisementManager {
       config: {
         layout: {
           icon: { position: { x: -0.4, y: -0.2 }, size: 1.5 },
-          title: { position: { x: -0.1, y: -0.3 }, size: 1.0, color: "primary" },
-          sub_title: { position: { x: -0.1, y: -0.2 }, size: 0.7, color: "secondary" },
-          lines: { position: { x: -0.1, y: -0.1 }, size: 0.6, color: "accent", spacing: 0.15 }
+          title: {
+            position: { x: -0.1, y: -0.3 },
+            size: 1.0,
+            color: "primary",
+          },
+          sub_title: {
+            position: { x: -0.1, y: -0.2 },
+            size: 0.7,
+            color: "secondary",
+          },
+          lines: {
+            position: { x: -0.1, y: -0.1 },
+            size: 0.6,
+            color: "accent",
+            spacing: 0.15,
+          },
         },
         colors: {
           primary: "0x2C3E50",
           secondary: "0xE67E22",
           accent: "0x27AE60",
           muted: "0x34495E",
-          highlight: "0xC0392B"
+          highlight: "0xC0392B",
         },
         background: {
           shadow: { offset: { x: 3, y: 3 }, color: "0x000000", alpha: 0.15 },
           border: { color: "0xD5D5D5", width: 2, radius: 12 },
-          highlight: { color: "0x3498DB", alpha: 0.8, height: 3 }
-        }
+          highlight: { color: "0x3498DB", alpha: 0.8, height: 3 },
+        },
       },
       advertisements: [
         {
           id: "banner",
           name: "Banner Quảng Cáo",
-          backgroundColor: 0xE8F4FD,
-          textColor: 0x2C3E50,
-          borderColor: 0x3498DB,
+          backgroundColor: 0xe8f4fd,
+          textColor: 0x2c3e50,
+          borderColor: 0x3498db,
           size: 300,
           points: 15,
           coinValue: 2,
@@ -164,24 +176,20 @@ export class AdvertisementManager {
             icon: "📢",
             title: "QUẢNG CÁO",
             sub_title: "Liên hệ ngay",
-            lines: [
-              "0963.60.62.63",
-              "NGHIAAPPLE.COM",
-              "Sửa chữa điện thoại"
-            ]
-          }
-        }
+            lines: ["0963.60.62.63", "NGHIAAPPLE.COM", "Sửa chữa điện thoại"],
+          },
+        },
       ],
       rarityWeights: {
         common: 0.3,
         uncommon: 0.3,
         rare: 0.2,
         epic: 0.15,
-        legendary: 0.05
+        legendary: 0.05,
       },
       categoryGroups: {
-        general: ["banner"]
-      }
+        general: ["banner"],
+      },
     };
     this.isLoaded = true;
   }
@@ -189,7 +197,7 @@ export class AdvertisementManager {
   public getAdvertisementConfig(adType?: string): AdvertisementData {
     console.log(`getAdvertisementConfig called with adType: ${adType}`);
     console.log(`isLoaded: ${this.isLoaded}, systemData:`, this.systemData);
-    
+
     if (!this.isLoaded || !this.systemData) {
       throw new Error(
         "Advertisement data not loaded. Call loadAdvertisementData() first.",
@@ -202,14 +210,18 @@ export class AdvertisementManager {
       console.log(`No adType provided, using random: ${adType}`);
     }
 
-    const rawConfig = this.systemData.advertisements.find(ad => ad.id === adType);
+    const rawConfig = this.systemData.advertisements.find(
+      (ad) => ad.id === adType,
+    );
     console.log(`Found config for ${adType}:`, rawConfig);
-    
+
     if (!rawConfig) {
       console.warn(
         `Advertisement type '${adType}' not found, using banner as fallback`,
       );
-      const fallbackConfig = this.systemData.advertisements.find(ad => ad.id === "banner");
+      const fallbackConfig = this.systemData.advertisements.find(
+        (ad) => ad.id === "banner",
+      );
       if (!fallbackConfig) {
         throw new Error("Fallback advertisement config not found");
       }
@@ -259,7 +271,7 @@ export class AdvertisementManager {
     if (!this.isLoaded || !this.systemData) {
       return ["banner"];
     }
-    return this.systemData.advertisements.map(ad => ad.id);
+    return this.systemData.advertisements.map((ad) => ad.id);
   }
 
   public getAdvertisementTypesByRarity(rarity: string): string[] {
@@ -274,28 +286,32 @@ export class AdvertisementManager {
       return [];
     }
     return this.systemData.advertisements
-      .filter(ad => ad.category === category)
-      .map(ad => ad.id);
+      .filter((ad) => ad.category === category)
+      .map((ad) => ad.id);
   }
 
   public getAdvertisementById(id: string): AdvertisementData | null {
     if (!this.isLoaded || !this.systemData) {
       return null;
     }
-    return this.systemData.advertisements.find(ad => ad.id === id) || null;
+    return this.systemData.advertisements.find((ad) => ad.id === id) || null;
   }
 
   public addAdvertisement(advertisement: AdvertisementData): boolean {
     if (!this.isLoaded || !this.systemData) {
       return false;
     }
-    
+
     // Check if ID already exists
-    if (this.systemData.advertisements.find(ad => ad.id === advertisement.id)) {
-      console.warn(`Advertisement with ID '${advertisement.id}' already exists`);
+    if (
+      this.systemData.advertisements.find((ad) => ad.id === advertisement.id)
+    ) {
+      console.warn(
+        `Advertisement with ID '${advertisement.id}' already exists`,
+      );
       return false;
     }
-    
+
     this.systemData.advertisements.push(advertisement);
     return true;
   }
@@ -304,27 +320,37 @@ export class AdvertisementManager {
     if (!this.isLoaded || !this.systemData) {
       return false;
     }
-    
-    const index = this.systemData.advertisements.findIndex(ad => ad.id === id);
+
+    const index = this.systemData.advertisements.findIndex(
+      (ad) => ad.id === id,
+    );
     if (index === -1) {
       return false;
     }
-    
+
     this.systemData.advertisements.splice(index, 1);
     return true;
   }
 
-  public updateAdvertisement(id: string, updates: Partial<AdvertisementData>): boolean {
+  public updateAdvertisement(
+    id: string,
+    updates: Partial<AdvertisementData>,
+  ): boolean {
     if (!this.isLoaded || !this.systemData) {
       return false;
     }
-    
-    const index = this.systemData.advertisements.findIndex(ad => ad.id === id);
+
+    const index = this.systemData.advertisements.findIndex(
+      (ad) => ad.id === id,
+    );
     if (index === -1) {
       return false;
     }
-    
-    this.systemData.advertisements[index] = { ...this.systemData.advertisements[index], ...updates };
+
+    this.systemData.advertisements[index] = {
+      ...this.systemData.advertisements[index],
+      ...updates,
+    };
     return true;
   }
 

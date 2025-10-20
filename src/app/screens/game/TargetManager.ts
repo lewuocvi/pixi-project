@@ -59,8 +59,11 @@ export class TargetManager extends Container {
       3 + Math.floor(Math.random() * 3),
     );
 
-    console.log(`🎯 Selected ${selectedTypes.length} advertisement types:`, selectedTypes);
-    
+    console.log(
+      `🎯 Selected ${selectedTypes.length} advertisement types:`,
+      selectedTypes,
+    );
+
     selectedTypes.forEach((adType) => {
       console.log(`🎯 Creating advertisement: ${adType}`);
       try {
@@ -81,8 +84,10 @@ export class TargetManager extends Container {
 
         this.targets.push(ad);
         this.addChild(ad);
-        
-        console.log(`✅ Advertisement ${adType} created successfully at (${x}, ${y})`);
+
+        console.log(
+          `✅ Advertisement ${adType} created successfully at (${x}, ${y})`,
+        );
       } catch (error) {
         console.error(`❌ Failed to create advertisement ${adType}:`, error);
       }
@@ -118,7 +123,6 @@ export class TargetManager extends Container {
     }
   }
 
-
   private spawnTarget(): void {
     let target: Target;
 
@@ -131,11 +135,17 @@ export class TargetManager extends Container {
       if (availableAdType) {
         target = new Advertisement(availableAdType);
         this.activeAdTypes.add(availableAdType);
-        console.log(`🎯 Spawned advertisement: ${availableAdType}, activeAdTypes:`, Array.from(this.activeAdTypes));
+        console.log(
+          `🎯 Spawned advertisement: ${availableAdType}, activeAdTypes:`,
+          Array.from(this.activeAdTypes),
+        );
         // Không thêm cooldown để quảng cáo có thể spawn lại ngay sau khi chết
       } else {
         // Nếu không có quảng cáo nào có thể spawn, spawn cá thay thế
-        console.log(`🐟 No available ads, spawning fish instead. activeAdTypes:`, Array.from(this.activeAdTypes));
+        console.log(
+          `🐟 No available ads, spawning fish instead. activeAdTypes:`,
+          Array.from(this.activeAdTypes),
+        );
         target = new Fish();
       }
     }
@@ -206,7 +216,9 @@ export class TargetManager extends Container {
       // Nếu là quảng cáo, xóa khỏi danh sách active
       if (target.category === "advertisement" && (target as any).adType) {
         this.activeAdTypes.delete((target as any).adType);
-        console.log(`🗑️ Removed advertisement type: ${(target as any).adType} from activeAdTypes`);
+        console.log(
+          `🗑️ Removed advertisement type: ${(target as any).adType} from activeAdTypes`,
+        );
       }
 
       this.targets.splice(index, 1);

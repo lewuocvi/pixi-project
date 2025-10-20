@@ -1,6 +1,11 @@
 import { Target } from "./Target";
 import { Text, TextStyle, Graphics } from "pixi.js";
-import { AdvertisementManager, AdvertisementData, AdvertisementContent, AdvertisementConfig } from "./AdvertisementManager";
+import {
+  AdvertisementManager,
+  AdvertisementData,
+  AdvertisementContent,
+  AdvertisementConfig,
+} from "./AdvertisementManager";
 
 export class Advertisement extends Target {
   private advertisementData: AdvertisementData;
@@ -9,35 +14,40 @@ export class Advertisement extends Target {
 
   constructor(adType?: string) {
     const manager = AdvertisementManager.getInstance();
-    
+
     console.log(`Creating Advertisement with type: ${adType}`);
     console.log(`Manager loaded: ${manager.isDataLoaded()}`);
-    
+
     // Ensure data is loaded before creating advertisement
     if (!manager.isDataLoaded()) {
-      console.error("AdvertisementManager data not loaded, cannot create Advertisement");
-      throw new Error("AdvertisementManager data not loaded. Call loadAdvertisementData() first.");
+      console.error(
+        "AdvertisementManager data not loaded, cannot create Advertisement",
+      );
+      throw new Error(
+        "AdvertisementManager data not loaded. Call loadAdvertisementData() first.",
+      );
     }
-    
+
     const data = manager.getAdvertisementConfig(adType);
     const config = manager.getSystemConfig();
-    
+
     console.log(`Data:`, data);
     console.log(`Config:`, config);
-    
+
     if (!data) {
       throw new Error(`Failed to get advertisement config for type: ${adType}`);
     }
-    
+
     if (!config) {
       throw new Error("Failed to get system config");
     }
-    
+
     // Parse color before calling super()
-    const backgroundColor = typeof data.backgroundColor === 'string' 
-      ? parseInt(data.backgroundColor.replace('0x', ''), 16)
-      : data.backgroundColor;
-    
+    const backgroundColor =
+      typeof data.backgroundColor === "string"
+        ? parseInt(data.backgroundColor.replace("0x", ""), 16)
+        : data.backgroundColor;
+
     super({
       type: "advertisement",
       name: data.name,
@@ -51,16 +61,19 @@ export class Advertisement extends Target {
       rarity: data.rarity,
       category: "advertisement",
     });
-    
+
     // Set data after calling super()
     this.adType = adType || "banner";
     this.advertisementData = data;
     this.systemConfig = config;
-    
+
     // Initialize advertisement after data is set
     this.initializeAdvertisement();
-    
-    console.log(`Advertisement created successfully with data:`, this.advertisementData);
+
+    console.log(
+      `Advertisement created successfully with data:`,
+      this.advertisementData,
+    );
   }
 
   private initializeAdvertisement(): void {
@@ -87,12 +100,14 @@ export class Advertisement extends Target {
   private createBackground(): void {
     console.log("🎨 Creating background...");
     console.log("this.advertisementData:", this.advertisementData);
-    
+
     if (!this.advertisementData) {
-      console.error("❌ this.advertisementData is undefined in createBackground()");
+      console.error(
+        "❌ this.advertisementData is undefined in createBackground()",
+      );
       return;
     }
-    
+
     const width = this.config.size * 1.2;
     const height = this.config.size * 0.8;
     const x = -width / 2;
@@ -100,46 +115,48 @@ export class Advertisement extends Target {
 
     // Tạo background chính với màu hòa hợp game
     this.targetGraphics.rect(x, y, width, height);
-    this.targetGraphics.fill({ 
-      color: this.parseColor(this.advertisementData.backgroundColor), 
-      alpha: 0.8 
+    this.targetGraphics.fill({
+      color: this.parseColor(this.advertisementData.backgroundColor),
+      alpha: 0.8,
     });
 
     // Tạo shadow effect nhẹ nhàng
     const shadowOffset = 2;
     this.targetGraphics.rect(x + shadowOffset, y + shadowOffset, width, height);
-    this.targetGraphics.fill({ 
-      color: 0x000000, 
-      alpha: 0.1 
+    this.targetGraphics.fill({
+      color: 0x000000,
+      alpha: 0.1,
     });
 
     // Tạo highlight effect nhẹ nhàng ở trên cùng
     const highlightHeight = 2;
-    const highlightColor = this.getLighterColor(this.parseColor(this.advertisementData.backgroundColor));
+    const highlightColor = this.getLighterColor(
+      this.parseColor(this.advertisementData.backgroundColor),
+    );
     this.targetGraphics.rect(x, y, width, highlightHeight);
-    this.targetGraphics.fill({ 
-      color: highlightColor, 
-      alpha: 0.3 
+    this.targetGraphics.fill({
+      color: highlightColor,
+      alpha: 0.3,
     });
   }
 
   private getLighterColor(color: number): number {
     // Tăng độ sáng của màu để tạo highlight
-    const r = Math.min(255, ((color >> 16) & 0xFF) + 50);
-    const g = Math.min(255, ((color >> 8) & 0xFF) + 50);
-    const b = Math.min(255, (color & 0xFF) + 50);
+    const r = Math.min(255, ((color >> 16) & 0xff) + 50);
+    const g = Math.min(255, ((color >> 8) & 0xff) + 50);
+    const b = Math.min(255, (color & 0xff) + 50);
     return (r << 16) | (g << 8) | b;
   }
 
   private createAdvertisementHealthBar(): void {
     console.log("❤️ Creating advertisement health bar...");
     console.log("Health:", this.config.health);
-    
+
     // Sử dụng hệ thống thanh máu của Target
     this.healthBar = new Graphics();
     this.addChild(this.healthBar);
     this.updateHealthBar();
-    
+
     console.log("✅ Advertisement health bar created successfully");
   }
 
@@ -167,10 +184,10 @@ export class Advertisement extends Target {
     const healthPercentage = this.currentHealth / this.maxHealth;
     const healthWidth = barWidth * healthPercentage;
     const healthColor = this.getHealthBarColor(healthPercentage);
-    
+
     this.healthBar.rect(barX, barY, healthWidth, barHeight);
     this.healthBar.fill({ color: healthColor, alpha: 0.9 });
-    
+
     console.log("✅ Health bar updated successfully");
   }
 
@@ -184,7 +201,7 @@ export class Advertisement extends Target {
     console.log("🎯 Adding banner content...");
     console.log("Advertisement data:", this.advertisementData);
     console.log("System config:", this.systemConfig);
-    
+
     if (!this.advertisementData || !this.systemConfig) {
       console.error("Advertisement data or system config is undefined");
       return;
@@ -207,8 +224,10 @@ export class Advertisement extends Target {
     fontSize: number,
     color: number = 0xffffff,
   ): Text {
-    console.log(`📝 Creating text: "${text}" at (${x}, ${y}) with size ${fontSize} and color ${color}`);
-    
+    console.log(
+      `📝 Creating text: "${text}" at (${x}, ${y}) with size ${fontSize} and color ${color}`,
+    );
+
     const style = new TextStyle({
       fontFamily: "Arial",
       fontSize: fontSize,
@@ -228,13 +247,16 @@ export class Advertisement extends Target {
   }
 
   // Layout handler sử dụng layout chung
-  private addSimpleContent(content: AdvertisementContent, layoutConfig: any): void {
+  private addSimpleContent(
+    content: AdvertisementContent,
+    layoutConfig: any,
+  ): void {
     console.log("🎨 Adding simple content...");
     console.log("Content:", content);
     console.log("Layout config:", layoutConfig);
     console.log("This.config:", this.config);
     console.log("This.config.size:", this.config?.size);
-    
+
     const fontSize = Math.max(8, this.config.size * 0.08);
     const textColor = this.parseColor(this.advertisementData.textColor);
 
@@ -274,7 +296,8 @@ export class Advertisement extends Target {
     // Lines
     if (content.lines && layoutConfig.lines) {
       content.lines.forEach((line, index) => {
-        const lineY = layoutConfig.lines.position.y + (index * layoutConfig.lines.spacing);
+        const lineY =
+          layoutConfig.lines.position.y + index * layoutConfig.lines.spacing;
         this.createText(
           line,
           this.config.size * layoutConfig.lines.position.x,
@@ -288,13 +311,13 @@ export class Advertisement extends Target {
 
   private parseColor(color: string | number): number {
     console.log(`🎨 Parsing color: ${color} (type: ${typeof color})`);
-    
-    if (typeof color === 'string') {
+
+    if (typeof color === "string") {
       const parsed = parseInt(color, 16);
       console.log(`🎨 Parsed color: ${parsed}`);
       return parsed;
     }
-    
+
     console.log(`🎨 Using color as number: ${color}`);
     return color;
   }
