@@ -1,4 +1,4 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { engine } from "../../getEngine";
 import { FishManager } from "./FishManager";
 import { Cannon } from "./Cannon";
@@ -190,6 +190,11 @@ export class FishingGameScreen extends Container {
       this.handleCoinCollected(coin);
     });
 
+    // Lắng nghe sự kiện boss xuất hiện
+    this.fishManager.eventEmitter.on("bossSpawned", (boss: any) => {
+      this.handleBossSpawned(boss);
+    });
+
     // Lắng nghe sự kiện pause/resume từ GameUI
     this.gameUI.on("pauseGame", () => {
       this.pauseGame();
@@ -250,7 +255,7 @@ export class FishingGameScreen extends Container {
     console.log(`🎯 target.category: "${target.category}"`);
     console.log(`🎯 target.adType: "${(target as any).adType}"`);
     console.log(`🎯 targetDied: ${targetDied}`);
-    
+
     // Phát âm thanh bắn trúng
     this.playHitSound();
 
@@ -286,7 +291,9 @@ export class FishingGameScreen extends Container {
       }
 
       // Cập nhật tiến độ nhiệm vụ
-      console.log(`🎯 Calling updateMissionProgress with targetType: "${target.targetType}"`);
+      console.log(
+        `🎯 Calling updateMissionProgress with targetType: "${target.targetType}"`,
+      );
       const missionCompleted = this.missionSystem.updateMissionProgress(
         target.targetType,
       );
@@ -514,6 +521,172 @@ export class FishingGameScreen extends Container {
   private playBossDefeatedSound(): void {
     // Sử dụng âm thanh boss chết đặc biệt
     SoundManager.getInstance().playBossDied();
+  }
+
+  // Xử lý khi boss xuất hiện
+  private handleBossSpawned(boss: any): void {
+    console.log(`👹 Boss xuất hiện: ${boss.targetName}`);
+
+    // Tạo hiệu ứng đặc biệt khi boss xuất hiện
+    this.createBossSpawnEffect(boss.x, boss.y);
+
+    // Phát âm thanh boss xuất hiện
+    this.playBossSpawnSound();
+
+    // Hiển thị thông báo boss xuất hiện
+    this.showBossSpawnNotification(boss.targetName);
+  }
+
+  // Hiệu ứng đặc biệt khi boss xuất hiện
+  private createBossSpawnEffect(x: number, y: number): void {
+    // Tạo vòng tròn năng lượng xung quanh boss
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        const energyRing = new Graphics();
+
+        // Vẽ vòng tròn năng lượng
+        energyRing.circle(0, 0, 50 + i * 20);
+        energyRing.stroke({
+          color: 0xff0000,
+          width: 3,
+          alpha: 0.8 - i * 0.2,
+        });
+
+        energyRing.x = x;
+        energyRing.y = y;
+        this.gameArea.addChild(energyRing);
+
+        // Animation vòng tròn mở rộng và biến mất
+        const animateRing = () => {
+          energyRing.scale.x *= 1.1;
+          energyRing.scale.y *= 1.1;
+          energyRing.alpha *= 0.9;
+
+          if (energyRing.alpha > 0.1) {
+            requestAnimationFrame(animateRing);
+          } else {
+            this.gameArea.removeChild(energyRing);
+            energyRing.destroy();
+          }
+        };
+
+        animateRing();
+      }, i * 200);
+    }
+
+    // Tạo tia sét xung quanh boss
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        const lightning = new Graphics();
+        const angle = (i * Math.PI * 2) / 8;
+        const startRadius = 40;
+        const endRadius = 80;
+
+        lightning.moveTo(
+          x + Math.cos(angle) * startRadius,
+          y + Math.sin(angle) * startRadius,
+        );
+        lightning.lineTo(
+          x + Math.cos(angle) * endRadius,
+          y + Math.sin(angle) * endRadius,
+        );
+        lightning.stroke({
+          color: 0xffff00,
+          width: 2,
+          alpha: 0.8,
+        });
+
+        this.gameArea.addChild(lightning);
+
+        // Animation tia sét biến mất
+        const animateLightning = () => {
+          lightning.alpha *= 0.85;
+
+          if (lightning.alpha > 0.1) {
+            requestAnimationFrame(animateLightning);
+          } else {
+            this.gameArea.removeChild(lightning);
+            lightning.destroy();
+          }
+        };
+
+        animateLightning();
+      }, i * 50);
+    }
+  }
+
+  // Âm thanh boss xuất hiện
+  private playBossSpawnSound(): void {
+    // Sử dụng âm thanh đặc biệt cho boss xuất hiện
+    SoundManager.getInstance().playBossSpawn();
+  }
+
+  // Hiển thị thông báo boss xuất hiện
+  private showBossSpawnNotification(bossName: string): void {
+    // Tạo text thông báo boss xuất hiện - lớn hơn và rõ ràng hơn
+    const notification = new Text(
+      `👹 ${bossName} XUẤT HIỆN! 👹`,
+      new TextStyle({
+        fontFamily: "Arial",
+        fontSize: 28, // Tăng từ 24 lên 28
+        fill: 0xff0000,
+        fontWeight: "bold",
+        stroke: { color: 0x000000, width: 5 }, // Tăng từ 4 lên 5
+        dropShadow: {
+          color: 0x000000,
+          blur: 5, // Tăng từ 4 lên 5
+          angle: Math.PI / 4,
+          distance: 4, // Tăng từ 3 lên 4
+        },
+      }),
+    );
+
+    notification.anchor.set(0.5);
+    notification.x = 960; // Giữa màn hình
+    notification.y = 200;
+
+    this.gameArea.addChild(notification);
+
+    // Animation thông báo - hiển thị lâu hơn để đọc được tên boss
+    let scale = 0.5;
+    let alpha = 1;
+    let displayTime = 0; // Thời gian hiển thị
+    const maxDisplayTime = 3000; // 3 giây
+
+    const animateNotification = () => {
+      displayTime += 16; // ~60fps
+
+      // Phase 1: Scale up (0-1000ms)
+      if (displayTime < 1000) {
+        scale += 0.05;
+        notification.scale.set(Math.min(scale, 1.5));
+      }
+
+      // Phase 2: Giữ nguyên (1000-2500ms) - Thời gian đọc với hiệu ứng nhấp nháy
+      else if (displayTime < 2500) {
+        // Hiệu ứng nhấp nháy nhẹ để thu hút sự chú ý
+        const blinkSpeed = 200; // Nhấp nháy mỗi 200ms
+        const blinkPhase = Math.floor(displayTime / blinkSpeed) % 2;
+        notification.alpha = blinkPhase === 0 ? 1.0 : 0.8;
+      }
+
+      // Phase 3: Fade out (2500-3000ms)
+      else if (displayTime < maxDisplayTime) {
+        alpha -= 0.03; // Fade out chậm hơn
+        notification.alpha = alpha;
+      }
+
+      // Kết thúc
+      else {
+        this.gameArea.removeChild(notification);
+        notification.destroy();
+        return;
+      }
+
+      requestAnimationFrame(animateNotification);
+    };
+
+    animateNotification();
   }
 
   private hideTargetName(target: any): void {

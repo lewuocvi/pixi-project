@@ -1,13 +1,16 @@
 import { Container } from "pixi.js";
 import { TargetManager } from "./TargetManager";
 import { Target } from "./Target";
+import { EventEmitter } from "events";
 
 export class FishManager extends Container {
   private targetManager: TargetManager;
+  public eventEmitter: EventEmitter;
 
   constructor() {
     super();
     this.targetManager = new TargetManager();
+    this.eventEmitter = this.targetManager.eventEmitter;
     this.addChild(this.targetManager);
   }
 
@@ -76,5 +79,18 @@ export class FishManager extends Container {
     category: "fish" | "advertisement",
   ): Target | null {
     return this.targetManager.spawnSpecificTarget(type, category);
+  }
+
+  // Boss management methods
+  public getActiveBossTypes(): string[] {
+    return this.targetManager.getActiveBossTypes();
+  }
+
+  public hasActiveBoss(): boolean {
+    return this.targetManager.hasActiveBoss();
+  }
+
+  public getActiveBossCount(): number {
+    return this.targetManager.getActiveBossCount();
   }
 }

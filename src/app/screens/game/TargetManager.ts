@@ -2,17 +2,27 @@ import { Container } from "pixi.js";
 import { Target } from "./Target";
 import { Fish } from "./Fish";
 import { Advertisement } from "./Advertisement";
+import { Boss } from "./Boss";
+import { EventEmitter } from "events";
 
 export class TargetManager extends Container {
   private targets: Target[] = [];
   private spawnTimer: number = 0;
   private spawnInterval: number = 2000; // 2 giây spawn 1 đối tượng
-  private fishSpawnChance: number = 0.3; // 30% cá, 70% quảng cáo (quảng cáo nhiều hơn)
+  private fishSpawnChance: number = 0.25; // 25% cá
+  private bossSpawnChance: number = 0.05; // 5% boss (hiếm)
+  // 70% còn lại là quảng cáo
   // Deprecated flag kept for potential future logic
   // private initialAdSpawned: boolean = false;
 
   // Theo dõi loại quảng cáo đang hiển thị để tránh spawn trùng lặp
   private activeAdTypes: Set<string> = new Set();
+
+  // Theo dõi boss đang hiển thị để tránh spawn trùng lặp
+  private activeBossTypes: Set<string> = new Set();
+
+  // Event emitter để thông báo khi boss xuất hiện
+  public eventEmitter: EventEmitter = new EventEmitter();
 
   constructor() {
     super();
@@ -125,12 +135,34 @@ export class TargetManager extends Container {
 
   private spawnTarget(): void {
     let target: Target;
+    const random = Math.random();
 
-    // Quyết định spawn cá hay quảng cáo
-    if (Math.random() < this.fishSpawnChance) {
+    // Quyết định spawn loại đối tượng nào
+    if (random < this.bossSpawnChance) {
+      // Spawn boss (hiếm nhất) - chỉ spawn nếu chưa có boss nào đang hoạt động
+      const availableBossType = this.getAvailableBossType();
+      if (availableBossType) {
+        target = new Boss(availableBossType);
+        this.activeBossTypes.add(availableBossType);
+        console.log(
+          `👹 Spawned boss: ${target.targetName} (${availableBossType})`,
+        );
+
+        // Emit event để thông báo boss xuất hiện
+        this.eventEmitter.emit("bossSpawned", target);
+      } else {
+        // Nếu không có boss nào có thể spawn, spawn cá thay thế
+        console.log(
+          `🐟 No available bosses, spawning fish instead. activeBossTypes:`,
+          Array.from(this.activeBossTypes),
+        );
+        target = new Fish();
+      }
+    } else if (random < this.bossSpawnChance + this.fishSpawnChance) {
+      // Spawn cá
       target = new Fish();
     } else {
-      // Kiểm tra xem có thể spawn quảng cáo không
+      // Spawn quảng cáo
       const availableAdType = this.getAvailableAdType();
       if (availableAdType) {
         target = new Advertisement(availableAdType);
@@ -139,7 +171,6 @@ export class TargetManager extends Container {
           `🎯 Spawned advertisement: ${availableAdType}, activeAdTypes:`,
           Array.from(this.activeAdTypes),
         );
-        // Không thêm cooldown để quảng cáo có thể spawn lại ngay sau khi chết
       } else {
         // Nếu không có quảng cáo nào có thể spawn, spawn cá thay thế
         console.log(
@@ -165,6 +196,23 @@ export class TargetManager extends Container {
     target.y = y;
     this.addChild(target);
     this.targets.push(target);
+  }
+
+  private getAvailableBossType(): string | null {
+    // Danh sách tất cả loại boss
+    const allBossTypes = ["pham_kha_di", "tran_van_nghia", "nghia_map"];
+
+    // Lọc ra các loại boss có thể spawn (chỉ kiểm tra không đang hiển thị)
+    const availableTypes = allBossTypes.filter(
+      (bossType) => !this.activeBossTypes.has(bossType),
+    );
+
+    // Trả về loại ngẫu nhiên từ danh sách có sẵn
+    if (availableTypes.length > 0) {
+      return availableTypes[Math.floor(Math.random() * availableTypes.length)];
+    }
+
+    return null; // Không có loại boss nào có thể spawn
   }
 
   private getAvailableAdType(): string | null {
@@ -221,6 +269,14 @@ export class TargetManager extends Container {
         );
       }
 
+      // Nếu là boss, xóa khỏi danh sách active boss
+      if (target.category === "boss") {
+        this.activeBossTypes.delete(target.targetType);
+        console.log(
+          `🗑️ Removed boss type: ${target.targetType} from activeBossTypes`,
+        );
+      }
+
       this.targets.splice(index, 1);
       this.removeChild(target);
       target.destroy();
@@ -229,6 +285,18 @@ export class TargetManager extends Container {
 
   public getTargets(): Target[] {
     return this.targets;
+  }
+
+  public getActiveBossTypes(): string[] {
+    return Array.from(this.activeBossTypes);
+  }
+
+  public hasActiveBoss(): boolean {
+    return this.activeBossTypes.size > 0;
+  }
+
+  public getActiveBossCount(): number {
+    return this.activeBossTypes.size;
   }
 
   public getFishes(): Target[] {
@@ -240,7 +308,7 @@ export class TargetManager extends Container {
   }
 
   public getBosses(): Target[] {
-    return this.targets.filter((target) => target.isBoss());
+    return this.targets.filter((target) => target.category === "boss");
   }
 
   public getTargetsByRarity(

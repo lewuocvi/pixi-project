@@ -73,6 +73,11 @@ export class SoundManager {
     SimpleSound.play("sfx-big-fish-died", 0.9);
   }
 
+  public playBossSpawn(): void {
+    // Sử dụng âm thanh level up cho boss xuất hiện (âm thanh đặc biệt)
+    SimpleSound.play("sfx-level-up", 1.0);
+  }
+
   public playBackgroundMusic(): void {
     SimpleSound.play("bgm-main", 0.3);
   }

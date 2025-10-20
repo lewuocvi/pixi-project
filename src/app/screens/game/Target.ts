@@ -11,7 +11,7 @@ export interface TargetConfig {
   speed: number;
   health: number;
   rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
-  category: "fish" | "advertisement";
+  category: "fish" | "advertisement" | "boss";
 }
 
 export abstract class Target extends Container {
@@ -27,7 +27,7 @@ export abstract class Target extends Container {
   public healthBar: Graphics | null = null;
   public rarity: "common" | "uncommon" | "rare" | "epic" | "legendary" =
     "common";
-  public category: "fish" | "advertisement" = "fish";
+  public category: "fish" | "advertisement" | "boss" = "fish";
 
   protected targetGraphics: Graphics;
   protected nameText: Text | null = null;
