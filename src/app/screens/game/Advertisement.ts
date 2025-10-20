@@ -49,7 +49,7 @@ export class Advertisement extends Target {
         : data.backgroundColor;
 
     super({
-      type: "advertisement",
+      type: adType || "banner", // Sử dụng loại quảng cáo cụ thể thay vì "advertisement"
       name: data.name,
       color: backgroundColor,
       size: data.size,
@@ -79,6 +79,9 @@ export class Advertisement extends Target {
   private initializeAdvertisement(): void {
     console.log("🚀 Initializing advertisement...");
     this.drawTarget();
+
+    // Tạo tên loại quảng cáo
+    this.createAdTypeName();
 
     // Tạo thanh máu cho quảng cáo có nhiều máu
     if (this.config.health > 1) {
@@ -148,6 +151,97 @@ export class Advertisement extends Target {
     return (r << 16) | (g << 8) | b;
   }
 
+  private createAdTypeName(): void {
+    console.log("🏷️ Creating advertisement type name...");
+    
+    const displayName = this.getAdTypeDisplayName();
+    const textColor = this.getAdTypeColor();
+    
+    const adTypeText = new Text({
+      text: displayName,
+      style: new TextStyle({
+        fontFamily: "Arial",
+        fontSize: 10,
+        fill: textColor,
+        fontWeight: "bold",
+        stroke: { color: 0x000000, width: 2 },
+        dropShadow: {
+          color: 0x000000,
+          blur: 2,
+          angle: Math.PI / 4,
+          distance: 1,
+        },
+      }),
+    });
+
+    adTypeText.anchor.set(0.5);
+    adTypeText.x = 0;
+    adTypeText.y = -this.config.size * 0.45; // Sát trên đầu quảng cáo
+    
+    this.addChild(adTypeText);
+    console.log(`✅ Advertisement type name "${displayName}" created successfully`);
+  }
+
+  private getAdTypeDisplayName(): string {
+    const displayNames: { [key: string]: string } = {
+      "banner": "BANNER",
+      "popup": "POPUP",
+      "video": "VIDEO",
+      "iphone_repair": "IPHONE",
+      "ipad_repair": "IPAD",
+      "android_repair": "ANDROID",
+      "unlock_service": "UNLOCK",
+      "frp_remove": "FRP",
+      "knox_check": "KNOX",
+      "camera_install": "CAMERA",
+      "camera_3k": "CAM 3K",
+      "solar_light": "SOLAR",
+      "solar_24h": "SOLAR 24H",
+      "wifi_install": "WIFI",
+      "server_install": "SERVER",
+      "nghiaapple_mega": "MEGA",
+      "nghiaapple_viral": "VIRAL",
+      "tech_solution": "TECH",
+      "camera_full_hd": "CAM HD",
+      "solar_premium": "SOLAR PRO",
+      "software_service": "SOFTWARE",
+      "repair_comprehensive": "REPAIR",
+      "contact_comprehensive": "CONTACT",
+    };
+    
+    return displayNames[this.adType] || this.adType.toUpperCase();
+  }
+
+  private getAdTypeColor(): number {
+    const colors: { [key: string]: number } = {
+      "banner": 0x3498db,      // Xanh dương
+      "popup": 0xe74c3c,       // Đỏ
+      "video": 0x9b59b6,       // Tím
+      "iphone_repair": 0x2ecc71, // Xanh lá
+      "ipad_repair": 0x2ecc71,   // Xanh lá
+      "android_repair": 0x2ecc71, // Xanh lá
+      "unlock_service": 0xf39c12, // Cam
+      "frp_remove": 0xf39c12,    // Cam
+      "knox_check": 0xf39c12,    // Cam
+      "camera_install": 0x1abc9c, // Xanh ngọc
+      "camera_3k": 0x1abc9c,     // Xanh ngọc
+      "solar_light": 0xf1c40f,  // Vàng
+      "solar_24h": 0xf1c40f,    // Vàng
+      "wifi_install": 0x34495e, // Xám đậm
+      "server_install": 0x34495e, // Xám đậm
+      "nghiaapple_mega": 0xe67e22, // Cam đậm
+      "nghiaapple_viral": 0xe67e22, // Cam đậm
+      "tech_solution": 0x8e44ad, // Tím đậm
+      "camera_full_hd": 0x1abc9c, // Xanh ngọc
+      "solar_premium": 0xf1c40f, // Vàng
+      "software_service": 0x8e44ad, // Tím đậm
+      "repair_comprehensive": 0x2ecc71, // Xanh lá
+      "contact_comprehensive": 0x3498db, // Xanh dương
+    };
+    
+    return colors[this.adType] || 0xffffff; // Mặc định trắng
+  }
+
   private createAdvertisementHealthBar(): void {
     console.log("❤️ Creating advertisement health bar...");
     console.log("Health:", this.config.health);
@@ -172,7 +266,7 @@ export class Advertisement extends Target {
     const barWidth = this.config.size * 1.2; // Chiều rộng bằng với quảng cáo
     const barHeight = 8;
     const barX = -barWidth / 2;
-    const barY = -this.config.size * 0.4; // Nằm sát trên đầu quảng cáo
+    const barY = -this.config.size * 0.4; // Sát trên đầu quảng cáo, ngay dưới tên loại
 
     console.log("Health bar dimensions:", { barWidth, barHeight, barX, barY });
 

@@ -245,6 +245,12 @@ export class FishingGameScreen extends Container {
   }
 
   private handleTargetHit(target: any, bullet: any, targetDied: boolean): void {
+    console.log(`🎯 handleTargetHit called - target:`, target);
+    console.log(`🎯 target.targetType: "${target.targetType}"`);
+    console.log(`🎯 target.category: "${target.category}"`);
+    console.log(`🎯 target.adType: "${(target as any).adType}"`);
+    console.log(`🎯 targetDied: ${targetDied}`);
+    
     // Phát âm thanh bắn trúng
     this.playHitSound();
 
@@ -280,6 +286,7 @@ export class FishingGameScreen extends Container {
       }
 
       // Cập nhật tiến độ nhiệm vụ
+      console.log(`🎯 Calling updateMissionProgress with targetType: "${target.targetType}"`);
       const missionCompleted = this.missionSystem.updateMissionProgress(
         target.targetType,
       );

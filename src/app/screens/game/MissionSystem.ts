@@ -250,7 +250,7 @@ export class MissionSystem extends Container {
         id: "mission_4_3",
         title: "Phá mega quảng cáo",
         description: "Tiêu diệt 2 mega quảng cáo",
-        targetType: "mega",
+        targetType: "nghiaapple_mega",
         targetCount: 2,
         currentCount: 0,
         reward: { coins: 700, ammo: 1400 },
@@ -406,10 +406,16 @@ export class MissionSystem extends Container {
   }
 
   public updateMissionProgress(targetType: string): boolean {
+    console.log(`🎯 MissionSystem.updateMissionProgress called with targetType: "${targetType}"`);
+    
     const currentMission = this.getCurrentMission();
     if (!currentMission || currentMission.completed) {
+      console.log(`🎯 No active mission or mission already completed`);
       return false;
     }
+
+    console.log(`🎯 Current mission: ${currentMission.title} (${currentMission.description})`);
+    console.log(`🎯 Mission targetType: "${currentMission.targetType}", targetCount: ${currentMission.targetCount}, currentCount: ${currentMission.currentCount}`);
 
     // Kiểm tra xem đối tượng có phù hợp với nhiệm vụ không
     if (
@@ -417,15 +423,19 @@ export class MissionSystem extends Container {
       currentMission.targetType === targetType
     ) {
       currentMission.currentCount++;
+      console.log(`🎯 Mission progress updated! New count: ${currentMission.currentCount}/${currentMission.targetCount}`);
 
       // Kiểm tra hoàn thành nhiệm vụ
       if (currentMission.currentCount >= currentMission.targetCount) {
         currentMission.completed = true;
+        console.log(`🎯 Mission completed!`);
         this.completeMission(currentMission);
         return true;
       }
 
       this.updateMissionDisplay();
+    } else {
+      console.log(`🎯 Target type "${targetType}" does not match mission targetType "${currentMission.targetType}"`);
     }
 
     return false;
