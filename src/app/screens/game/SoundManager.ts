@@ -27,6 +27,7 @@ export class SoundManager {
       { name: "sfx-press", url: "/assets/main/sounds/sfx-press.mp3" },
       { name: "sfx-hover", url: "/assets/main/sounds/sfx-hover.mp3" },
       { name: "sfx-level-up", url: "/assets/main/sounds/sfx-level-up.mp3" },
+      { name: "sfx-boss-died", url: "/assets/main/sounds/sfx-boss-died.mp3" },
     ];
 
     try {
@@ -70,7 +71,7 @@ export class SoundManager {
   }
 
   public playBossDied(): void {
-    SimpleSound.play("sfx-big-fish-died", 0.9);
+    SimpleSound.play("sfx-boss-died", 1.0);
   }
 
   public playBossSpawn(): void {

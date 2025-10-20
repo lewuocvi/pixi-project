@@ -284,6 +284,12 @@ export class FishingGameScreen extends Container {
 
         // Phát âm thanh đặc biệt
         this.playBossDefeatedSound();
+
+        // Hiển thị thông báo boss bị tiêu diệt
+        this.showBossDefeatedNotification(target.targetName);
+
+        // Hiệu ứng màn hình rung nhẹ khi boss chết
+        this.createScreenShakeEffect();
       } else {
         // Hiệu ứng cộng xu và đạn bay vào UI bình thường
         this.gameUI.showCoinGain(reward.coins, target.x, target.y);
@@ -687,6 +693,103 @@ export class FishingGameScreen extends Container {
     };
 
     animateNotification();
+  }
+
+  // Hiển thị thông báo boss bị tiêu diệt
+  private showBossDefeatedNotification(bossName: string): void {
+    // Tạo text thông báo boss bị tiêu diệt
+    const notification = new Text(
+      `💀 ${bossName} ĐÃ BỊ TIÊU DIỆT! 💀`,
+      new TextStyle({
+        fontFamily: "Arial",
+        fontSize: 26,
+        fill: 0x00ff00, // Màu xanh lá để thể hiện chiến thắng
+        fontWeight: "bold",
+        stroke: { color: 0x000000, width: 4 },
+        dropShadow: {
+          color: 0x000000,
+          blur: 4,
+          angle: Math.PI / 4,
+          distance: 3,
+        },
+      }),
+    );
+
+    notification.anchor.set(0.5);
+    notification.x = 960; // Giữa màn hình
+    notification.y = 300; // Thấp hơn thông báo xuất hiện
+
+    this.gameArea.addChild(notification);
+
+    // Animation thông báo boss bị tiêu diệt
+    let scale = 0.3;
+    let alpha = 1;
+    let displayTime = 0;
+    const maxDisplayTime = 2500; // 2.5 giây
+
+    const animateNotification = () => {
+      displayTime += 16; // ~60fps
+
+      // Phase 1: Scale up nhanh (0-500ms)
+      if (displayTime < 500) {
+        scale += 0.1;
+        notification.scale.set(Math.min(scale, 1.2));
+      }
+
+      // Phase 2: Giữ nguyên với hiệu ứng nhấp nháy (500-2000ms)
+      else if (displayTime < 2000) {
+        const blinkSpeed = 150; // Nhấp nháy nhanh hơn
+        const blinkPhase = Math.floor(displayTime / blinkSpeed) % 2;
+        notification.alpha = blinkPhase === 0 ? 1.0 : 0.6;
+      }
+
+      // Phase 3: Fade out (2000-2500ms)
+      else if (displayTime < maxDisplayTime) {
+        alpha -= 0.05; // Fade out nhanh hơn
+        notification.alpha = alpha;
+      }
+
+      // Kết thúc
+      else {
+        this.gameArea.removeChild(notification);
+        notification.destroy();
+        return;
+      }
+
+      requestAnimationFrame(animateNotification);
+    };
+
+    animateNotification();
+  }
+
+  // Hiệu ứng màn hình rung khi boss chết
+  private createScreenShakeEffect(): void {
+    const originalX = this.gameArea.x;
+    const originalY = this.gameArea.y;
+    const shakeIntensity = 5; // Độ rung
+    const shakeDuration = 500; // Thời gian rung (ms)
+    let shakeTime = 0;
+
+    const shake = () => {
+      shakeTime += 16; // ~60fps
+
+      if (shakeTime < shakeDuration) {
+        // Tạo rung ngẫu nhiên
+        const shakeX = (Math.random() - 0.5) * shakeIntensity;
+        const shakeY = (Math.random() - 0.5) * shakeIntensity;
+
+        this.gameArea.x = originalX + shakeX;
+        this.gameArea.y = originalY + shakeY;
+
+        requestAnimationFrame(shake);
+      } else {
+        // Khôi phục vị trí ban đầu
+        this.gameArea.x = originalX;
+        this.gameArea.y = originalY;
+      }
+    };
+
+    shake();
   }
 
   private hideTargetName(target: any): void {
